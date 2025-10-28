@@ -1,0 +1,31 @@
+name: Ejecutar resumen de correos
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"  # cada 10 minutos
+  workflow_dispatch:        # permite ejecución manual también
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt
+
+      - name: Crear archivo de credenciales
+        run: echo '${{ secrets.GMAIL_SERVICE_JSON }}' > service_account.json
+
+      - name: Ejecutar script
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python main.py
